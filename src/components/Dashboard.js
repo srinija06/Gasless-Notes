@@ -93,30 +93,11 @@ const Dashboard = () => {
       </header>
 
       {/* Main Content */}
-      <div className="pt-28 flex flex-col items-center">
-        {!showCreate && (
+      <div className="pt-28 flex-1 flex flex-col items-center justify-center w-full max-w-7xl mx-auto" style={{minHeight:'calc(100vh - 7rem)'}}>
+        {showCreate ? (
+          <CreateNote user={user} onBack={() => setShowCreate(false)} />
+        ) : (
           <NoteHistory user={user} onAddNote={() => setShowCreate(true)} />
-        )}
-
-        {/* Create Note Modal/Sidebar */}
-        {showCreate && (
-          <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-end">
-            <div className="bg-white w-full max-w-lg h-full shadow-2xl p-8 overflow-y-auto transition-all duration-300">
-              <button
-                className="mb-4 text-indigo-600 hover:underline"
-                onClick={() => setShowCreate(false)}
-              >
-                ← Back to Dashboard
-              </button>
-              <CreateNote user={user} />
-            </div>
-            {/* Click outside to close */}
-            <div
-              className="flex-1"
-              onClick={() => setShowCreate(false)}
-              style={{ cursor: "pointer" }}
-            />
-          </div>
         )}
       </div>
     </div>

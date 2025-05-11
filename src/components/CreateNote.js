@@ -45,7 +45,7 @@ const CreateNote = ({ user, onBack }) => {
   };
 
   return (
-    <div className="max-w-3xl p-12 mx-auto mt-10 bg-white rounded-xl shadow-lg">
+    <div className="relative w-full max-w-7xl min-h-[75vh] h-full mx-auto mt-8 p-10 bg-white rounded-3xl shadow-2xl flex flex-col justify-between">
       <h2 className="text-2xl font-bold mb-6">Create a Note</h2>
       {error && <div className="mb-4 text-red-600">{error}</div>}
       {success && <div className="mb-4 text-green-600">{success}</div>}
@@ -62,8 +62,8 @@ const CreateNote = ({ user, onBack }) => {
         placeholder="Content"
         value={content}
         onChange={e => setContent(e.target.value)}
-        rows={12}
-        style={{ minHeight: '200px' }}
+        rows={8}
+        style={{ minHeight: '120px', maxHeight: '180px', overflowY: 'auto' }}
         disabled={loading}
       />
       <button
