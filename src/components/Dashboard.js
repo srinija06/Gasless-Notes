@@ -6,6 +6,7 @@ import NoteHistory from "./NoteHistory";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
+  const [showCreate, setShowCreate] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -27,56 +28,97 @@ const Dashboard = () => {
 
   if (!user) return <div>Loading...</div>;
 
-  // Get initial from email
-  const emailInitial = user.email ? user.email[0].toUpperCase() : "?";
+  // Get initials from email
+  const initials = user.email
+    ? user.email
+        .split("@")[0]
+        .split(/[._]/)
+        .map((s) => s[0]?.toUpperCase())
+        .join("")
+    : "?";
   const userName = user.user_metadata?.name || user.email;
 
   return (
-    <div className="flex bg-gray-100 min-h-screen">
-      {/* Sidebar */}
-      <aside className="fixed left-0 top-0 h-screen w-80 bg-white shadow-lg flex flex-col justify-between items-center py-8 z-30">
-        {/* Top: Profile section */}
-        <div className="w-full">
-          <div className="flex items-center mb-10 w-full px-4">
-            <div className="flex-shrink-0 h-12 w-12 rounded-full bg-indigo-500 flex items-center justify-center text-white text-2xl font-bold">
-              {emailInitial}
-            </div>
-            <span className="ml-2 text-lg font-semibold truncate">{userName}</span>
-          </div>
+    <div className="min-h-screen bg-gray-100">
+      {/* Header */}
+      <header className="fixed top-0 left-0 w-full h-24 bg-white shadow flex items-center justify-between px-12 z-40">
+        <div className="flex items-center gap-4">
+          {/* SVG Icon */}
+          <span className="inline-block align-middle">
+            <svg width="48" height="48" viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <rect x="8" y="8" width="36" height="44" rx="6" fill="#fff" stroke="#6366f1" strokeWidth="4"/>
+              <rect x="12" y="14" width="4" height="8" rx="2" fill="#6366f1"/>
+              <rect x="12" y="26" width="4" height="8" rx="2" fill="#6366f1"/>
+              <rect x="12" y="38" width="4" height="8" rx="2" fill="#6366f1"/>
+              <path d="M32 24L48 40" stroke="#f59e42" strokeWidth="4" strokeLinecap="round"/>
+              <rect x="41" y="33" width="10" height="6" rx="2" transform="rotate(45 41 33)" fill="#f59e42"/>
+            </svg>
+          </span>
+          {/* Gradient Text */}
+          <span className="text-3xl font-extrabold bg-gradient-to-r from-purple-500 via-pink-500 to-orange-500 bg-clip-text text-transparent select-none">
+            Gasless Notes
+          </span>
         </div>
-        {/* Bottom: Settings */}
-        <div className="w-full flex flex-col items-center z-20 mb-2">
-          <div className="bg-white rounded-lg shadow-lg px-6 py-3 flex flex-col items-center w-full">
+        <div className="flex items-center gap-4">
+          {/* Settings */}
+          <div className="relative">
             <button
-              className="flex items-center gap-2 text-indigo-600 hover:text-indigo-800 focus:outline-none text-xl font-bold w-full justify-center"
+              className="text-2xl text-gray-600 hover:text-indigo-700 focus:outline-none"
               onClick={() => setSettingsOpen((open) => !open)}
             >
-              <span className="text-2xl">⚙️</span>
-              <span className="font-bold text-xl">Settings</span>
+              <span role="img" aria-label="settings">⚙️</span>
             </button>
             {settingsOpen && (
-              <div className="mt-8 w-full bg-white border rounded shadow-lg z-30">
+              <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
                 <button
-                  className="w-full text-left px-4 py-2 text-red-600 hover:bg-gray-100 text-base"
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   onClick={handleLogout}
                 >
                   Logout
                 </button>
+                <button
+                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
+                  onClick={() => alert('Help coming soon!')}
+                >
+                  Help
+                </button>
               </div>
             )}
           </div>
-        </div>
-      </aside>
-
-      {/* Main Content */}
-      <main className="flex-1 flex flex-col items-center justify-center ml-80 min-h-screen overflow-y-auto">
-        <div className="w-full max-w-3xl p-12">
-          <CreateNote user={user} />
-          <div className="mt-12">
-            <NoteHistory user={user} />
+          {/* Profile Initial (far right) */}
+          <div className="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-lg font-bold">
+            {initials}
           </div>
         </div>
-      </main>
+      </header>
+
+      {/* Main Content */}
+      <div className="pt-28 flex flex-col items-center">
+        {!showCreate && (
+          <NoteHistory user={user} onAddNote={() => setShowCreate(true)} />
+        )}
+
+        {/* Create Note Modal/Sidebar */}
+        {showCreate && (
+          <div className="fixed inset-0 bg-black bg-opacity-30 z-50 flex justify-end">
+            <div className="bg-white w-full max-w-lg h-full shadow-2xl p-8 overflow-y-auto transition-all duration-300">
+              <button
+                className="mb-4 text-indigo-600 hover:underline"
+                onClick={() => setShowCreate(false)}
+              >
+                ← Back to Dashboard
+              </button>
+              <CreateNote user={user} />
+            </div>
+            {/* Click outside to close */}
+            <div
+              className="flex-1"
+              onClick={() => setShowCreate(false)}
+              style={{ cursor: "pointer" }}
+            />
+          </div>
+        )}
+      </div>
     </div>
   );
 };

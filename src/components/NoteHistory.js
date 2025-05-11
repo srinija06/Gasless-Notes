@@ -24,12 +24,13 @@ async function verifyTorusChainTx(tx_id) {
   return true;
 }
 
-const NoteHistory = ({ user }) => {
+const NoteHistory = ({ user, onAddNote }) => {
   const [notes, setNotes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [verifying, setVerifying] = useState({}); // {note_id: true/false}
   const [confirmations, setConfirmations] = useState({}); // {note_id: true/false}
+  const [search, setSearch] = useState("");
 
   // Fetch notes from Supabase
   useEffect(() => {
@@ -96,56 +97,81 @@ const NoteHistory = ({ user }) => {
     // eslint-disable-next-line
   }, [notes]);
 
+  // Filter notes by search
+  const filteredNotes = notes.filter(
+    (note) =>
+      note.title.toLowerCase().includes(search.toLowerCase()) ||
+      note.content.toLowerCase().includes(search.toLowerCase())
+  );
+
   return (
-    <div className="max-w-3xl mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg">
-      <h2 className="text-2xl font-bold mb-6">Note History</h2>
-      {error && <div className="mb-4 text-red-600">{typeof error === 'string' ? error : JSON.stringify(error)}</div>}
-      {loading ? (
-        <div className="text-gray-600">Loading notes...</div>
-      ) : notes.length === 0 ? (
-        <div className="text-gray-500">No notes found.</div>
-      ) : (
-        <div className="space-y-6">
-          {notes.map((note) => (
-            <div
-              key={note.id}
-              className="border border-gray-200 rounded-lg p-6 shadow flex flex-col gap-2"
-            >
-              <div className="font-semibold text-lg">{note.title}</div>
-              <div className="text-gray-700 whitespace-pre-line">{note.content}</div>
-              <div className="flex items-center gap-4 mt-2">
-                <span className="text-sm text-gray-500">
-                  {note.tx_id
-                    ? `Blockchain TX: ${note.tx_id}`
-                    : "Not yet verified on blockchain"}
-                </span>
-                {note.tx_id && confirmations[note.id] !== undefined && (
-                  <span
-                    className={
-                      confirmations[note.id]
-                        ? "text-green-600 font-semibold"
-                        : "text-yellow-600 font-semibold"
-                    }
-                  >
-                    {confirmations[note.id]
-                      ? "Verified"
-                      : "Pending Confirmation"}
-                  </span>
-                )}
-                {!note.tx_id && (
-                  <button
-                    className="ml-auto bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700 text-sm"
-                    onClick={() => handleVerify(note)}
-                    disabled={verifying[note.id]}
-                  >
-                    {verifying[note.id] ? "Verifying..." : "Verify on Blockchain"}
-                  </button>
-                )}
-              </div>
-            </div>
-          ))}
+    <div className="relative w-full max-w-7xl min-h-[75vh] mx-auto mt-8 p-10 bg-white rounded-3xl shadow-2xl flex flex-col justify-between">
+      <div>
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-3xl font-bold">Note History</h2>
+          <input
+            type="text"
+            value={search}
+            onChange={e => setSearch(e.target.value)}
+            placeholder="Search notes..."
+            className="border border-gray-300 rounded px-3 py-2 w-96 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-lg"
+          />
         </div>
-      )}
+        {error && <div className="mb-4 text-red-600">{typeof error === 'string' ? error : JSON.stringify(error)}</div>}
+        {loading ? (
+          <div className="text-gray-600">Loading notes...</div>
+        ) : filteredNotes.length === 0 ? (
+          <div className="text-gray-500">Capture your thoughts—create your first note!</div>
+        ) : (
+          <div className="space-y-6">
+            {filteredNotes.map((note) => (
+              <div
+                key={note.id}
+                className="border border-gray-200 rounded-lg p-6 shadow flex flex-col gap-2"
+              >
+                <div className="font-semibold text-lg">{note.title}</div>
+                <div className="text-gray-700 whitespace-pre-line">{note.content}</div>
+                <div className="flex items-center gap-4 mt-2">
+                  <span className="text-sm text-gray-500">
+                    {note.tx_id
+                      ? `Blockchain TX: ${note.tx_id}`
+                      : "Not yet verified on blockchain"}
+                  </span>
+                  {note.tx_id && confirmations[note.id] !== undefined && (
+                    <span
+                      className={
+                        confirmations[note.id]
+                          ? "text-green-600 font-semibold"
+                          : "text-yellow-600 font-semibold"
+                      }
+                    >
+                      {confirmations[note.id]
+                        ? "Verified"
+                        : "Pending Confirmation"}
+                    </span>
+                  )}
+                  {!note.tx_id && (
+                    <button
+                      className="ml-auto bg-indigo-600 text-white px-4 py-1 rounded hover:bg-indigo-700 text-sm"
+                      onClick={() => handleVerify(note)}
+                      disabled={verifying[note.id]}
+                    >
+                      {verifying[note.id] ? "Verifying..." : "Verify on Blockchain"}
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+      {/* Add New Note Button - bottom right */}
+      <button
+        className="absolute bottom-8 right-8 flex items-center gap-2 bg-indigo-50 shadow rounded-lg px-8 py-4 text-indigo-700 font-bold text-xl hover:bg-indigo-100 transition"
+        onClick={onAddNote}
+      >
+        <span className="text-2xl">+</span> Add New Note
+      </button>
     </div>
   );
 };
