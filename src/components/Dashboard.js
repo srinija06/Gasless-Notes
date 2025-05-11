@@ -60,34 +60,28 @@ const Dashboard = () => {
           </span>
         </div>
         <div className="flex items-center gap-4">
-          {/* Settings */}
+          {/* Profile Initial (far right) */}
+          <div className="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-lg font-bold" title={user.email}>
+            {initials}
+          </div>
+          {/* Three Dots Dropdown */}
           <div className="relative">
             <button
-              className="text-2xl text-gray-600 hover:text-indigo-700 focus:outline-none"
+              className="text-3xl text-gray-600 hover:text-indigo-700 focus:outline-none"
               onClick={() => setSettingsOpen((open) => !open)}
             >
-              <span role="img" aria-label="settings">⚙️</span>
+              <span>&#8942;</span>
             </button>
             {settingsOpen && (
-              <div className="absolute right-0 mt-2 w-40 bg-white border rounded shadow-lg z-50">
+              <div className="absolute right-0 mt-2 w-32 bg-white border border-gray-300 rounded shadow-lg z-50">
                 <button
                   className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
                   onClick={handleLogout}
                 >
                   Logout
                 </button>
-                <button
-                  className="w-full text-left px-4 py-2 text-gray-700 hover:bg-gray-100"
-                  onClick={() => alert('Help coming soon!')}
-                >
-                  Help
-                </button>
               </div>
             )}
-          </div>
-          {/* Profile Initial (far right) */}
-          <div className="h-10 w-10 rounded-full bg-indigo-500 flex items-center justify-center text-white text-lg font-bold">
-            {initials}
           </div>
         </div>
       </header>

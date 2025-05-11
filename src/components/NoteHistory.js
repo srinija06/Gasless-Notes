@@ -114,7 +114,7 @@ const NoteHistory = ({ user, onAddNote }) => {
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search notes..."
-            className="border border-gray-300 rounded px-3 py-2 w-96 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-lg"
+            className="border border-gray-800 rounded px-3 py-2 w-96 focus:outline-none focus:ring-2 focus:ring-indigo-200 text-lg"
           />
         </div>
         {error && <div className="mb-4 text-red-600">{typeof error === 'string' ? error : JSON.stringify(error)}</div>}
@@ -127,7 +127,7 @@ const NoteHistory = ({ user, onAddNote }) => {
             {filteredNotes.map((note) => (
               <div
                 key={note.id}
-                className="border border-gray-200 rounded-lg p-6 shadow flex flex-col gap-2"
+                className="border border-gray-800 rounded-lg p-6 shadow flex flex-col gap-2"
               >
                 <div className="font-semibold text-lg">{note.title}</div>
                 <div className="text-gray-700 whitespace-pre-line">{note.content}</div>
@@ -167,7 +167,7 @@ const NoteHistory = ({ user, onAddNote }) => {
       </div>
       {/* Add New Note Button - bottom right */}
       <button
-        className="absolute bottom-8 right-8 flex items-center gap-2 bg-indigo-50 shadow rounded-lg px-8 py-4 text-indigo-700 font-bold text-xl hover:bg-indigo-100 transition"
+        className="absolute bottom-8 right-8 flex items-center gap-2 bg-indigo-50 shadow rounded-lg border border-gray-800 px-8 py-4 text-indigo-700 font-bold text-xl hover:bg-indigo-100 transition"
         onClick={onAddNote}
       >
         <span className="text-2xl">+</span> Add New Note

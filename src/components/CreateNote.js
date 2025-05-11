@@ -50,7 +50,7 @@ const CreateNote = ({ user, onBack }) => {
       {error && <div className="mb-4 text-red-600">{error}</div>}
       {success && <div className="mb-4 text-green-600">{success}</div>}
       <input
-        className="w-full border border-gray-300 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
+        className="w-full border border-gray-800 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
         type="text"
         placeholder="Title"
         value={title}
@@ -58,7 +58,7 @@ const CreateNote = ({ user, onBack }) => {
         disabled={loading}
       />
       <textarea
-        className="w-full border border-gray-300 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
+        className="w-full border border-gray-800 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
         placeholder="Content"
         value={content}
         onChange={e => setContent(e.target.value)}
