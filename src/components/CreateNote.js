@@ -30,12 +30,9 @@ const CreateNote = ({ user, onBack }) => {
       const hash = await sha256(content);
       const timestamp = new Date().toISOString();
 
-      // 3. Send hash & timestamp to TorusChain (mocked API call)
-      await fetch("https://api.toruschain.com/proof", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ hash, timestamp })
-      });
+      // 3. MOCK: Simulate sending to TorusChain
+      await new Promise(res => setTimeout(res, 1000));
+      // Optionally, you could set a fake tx_id in Supabase here
 
       setSuccess("Note saved and proof submitted successfully!");
       setTitle("");

@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "../utils/supabaseClient";
 import CreateNote from "./CreateNote";
+import NoteHistory from "./NoteHistory";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -71,6 +72,9 @@ const Dashboard = () => {
       <main className="flex-1 flex flex-col items-center justify-center ml-80 min-h-screen overflow-y-auto">
         <div className="w-full max-w-3xl p-12">
           <CreateNote user={user} />
+          <div className="mt-12">
+            <NoteHistory user={user} />
+          </div>
         </div>
       </main>
     </div>
