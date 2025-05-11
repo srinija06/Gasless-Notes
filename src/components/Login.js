@@ -47,7 +47,14 @@ const Login = () => {
     try {
       setLoading(true);
       setError(null);
-      const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: "google",
+        options: {
+          queryParams: {
+            prompt: "select_account"
+          }
+        }
+      });
       if (error) throw error;
     } catch (error) {
       setError(error.message);

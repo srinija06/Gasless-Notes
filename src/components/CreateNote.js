@@ -48,12 +48,12 @@ const CreateNote = ({ user, onBack }) => {
   };
 
   return (
-    <div className="max-w-lg mx-auto mt-10 p-8 bg-white rounded-xl shadow-lg">
+    <div className="max-w-3xl p-12 mx-auto mt-10 bg-white rounded-xl shadow-lg">
       <h2 className="text-2xl font-bold mb-6">Create a Note</h2>
       {error && <div className="mb-4 text-red-600">{error}</div>}
       {success && <div className="mb-4 text-green-600">{success}</div>}
       <input
-        className="w-full border border-gray-300 rounded px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="w-full border border-gray-300 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
         type="text"
         placeholder="Title"
         value={title}
@@ -61,15 +61,16 @@ const CreateNote = ({ user, onBack }) => {
         disabled={loading}
       />
       <textarea
-        className="w-full border border-gray-300 rounded px-4 py-2 mb-4 focus:outline-none focus:ring-2 focus:ring-indigo-400"
+        className="w-full border border-gray-300 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
         placeholder="Content"
         value={content}
         onChange={e => setContent(e.target.value)}
-        rows={6}
+        rows={12}
+        style={{ minHeight: '200px' }}
         disabled={loading}
       />
       <button
-        className="w-full bg-indigo-600 text-white font-semibold py-2 px-4 rounded hover:bg-indigo-700 transition disabled:opacity-50"
+        className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded hover:bg-indigo-700 transition disabled:opacity-50 text-lg"
         onClick={handleSave}
         disabled={loading || !title || !content}
       >
