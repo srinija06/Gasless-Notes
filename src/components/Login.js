@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { supabase } from "../utils/supabaseClient";
+import { useNavigate } from "react-router-dom";
 
 const googleIcon = (
   <svg className="w-5 h-5" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -18,21 +19,29 @@ const googleIcon = (
 );
 
 const Login = () => {
-  const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
       setLoading(false);
+      if (session?.user) {
+        navigate("/dashboard");
+      }
     });
 
-    supabase.auth.onAuthStateChange((event, session) => {
-      setUser(session?.user ?? null);
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
       setLoading(false);
+      if (session?.user) {
+        navigate("/dashboard");
+      }
     });
-  }, []);
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, [navigate]);
 
   const handleLogin = async () => {
     try {
@@ -43,20 +52,6 @@ const Login = () => {
     } catch (error) {
       setError(error.message);
       console.error("Login error:", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleLogout = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      await supabase.auth.signOut();
-      setUser(null);
-    } catch (error) {
-      setError(error.message);
-      console.error("Logout error:", error.message);
     } finally {
       setLoading(false);
     }
@@ -99,31 +94,18 @@ const Login = () => {
           </div>
         )}
 
-        {user ? (
-          <div className="bg-white/20 backdrop-blur-md p-6 rounded-lg shadow-xl w-80 text-center border border-gray-300">
-            <p className="text-lg font-semibold">Welcome, {user.email}!</p>
-            <button
-              onClick={handleLogout}
-              disabled={loading}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md mt-4 shadow-md transition-all duration-300 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Logging out...' : 'Logout'}
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={handleLogin}
-            disabled={loading}
-            className="bg-blue-100 hover:bg-blue-200 border border-blue-200 flex items-center gap-2 px-8 py-4 rounded-md shadow-md transition-all duration-300 text-2xl font-semibold hover:scale-105 transform mt-4 text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? (
-              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-900"></div>
-            ) : (
-              googleIcon
-            )}
-            <span>{loading ? 'Logging in...' : 'Login with Google'}</span>
-          </button>
-        )}
+        <button
+          onClick={handleLogin}
+          disabled={loading}
+          className="bg-blue-100 hover:bg-blue-200 border border-blue-200 flex items-center gap-2 px-8 py-4 rounded-md shadow-md transition-all duration-300 text-2xl font-semibold hover:scale-105 transform mt-4 text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-900"></div>
+          ) : (
+            googleIcon
+          )}
+          <span>{loading ? 'Logging in...' : 'Login with Google'}</span>
+        </button>
       </div>
     </div>
   );
