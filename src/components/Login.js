@@ -19,26 +19,57 @@ const googleIcon = (
 
 const Login = () => {
   const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setUser(session?.user ?? null);
+      setLoading(false);
     });
 
     supabase.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
+      setLoading(false);
     });
   }, []);
 
   const handleLogin = async () => {
-    const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
-    if (error) console.error("Login error:", error.message);
+    try {
+      setLoading(true);
+      setError(null);
+      const { error } = await supabase.auth.signInWithOAuth({ provider: "google" });
+      if (error) throw error;
+    } catch (error) {
+      setError(error.message);
+      console.error("Login error:", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleLogout = async () => {
-    await supabase.auth.signOut();
-    setUser(null);
+    try {
+      setLoading(true);
+      setError(null);
+      await supabase.auth.signOut();
+      setUser(null);
+    } catch (error) {
+      setError(error.message);
+      console.error("Logout error:", error.message);
+    } finally {
+      setLoading(false);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+        <p className="mt-4 text-gray-600">Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 text-gray-900">
@@ -61,24 +92,36 @@ const Login = () => {
             Gasless Notes
           </span>
         </div>
-        {/* Login Box with glassmorphism */}
+        
+        {error && (
+          <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4" role="alert">
+            <span className="block sm:inline">{error}</span>
+          </div>
+        )}
+
         {user ? (
           <div className="bg-white/20 backdrop-blur-md p-6 rounded-lg shadow-xl w-80 text-center border border-gray-300">
             <p className="text-lg font-semibold">Welcome, {user.email}!</p>
             <button
               onClick={handleLogout}
-              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md mt-4 shadow-md transition-all duration-300 hover:scale-105 transform"
+              disabled={loading}
+              className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-md mt-4 shadow-md transition-all duration-300 hover:scale-105 transform disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              Logout
+              {loading ? 'Logging out...' : 'Logout'}
             </button>
           </div>
         ) : (
           <button
             onClick={handleLogin}
-            className="bg-blue-100 hover:bg-blue-200 border border-blue-200 flex items-center gap-2 px-8 py-4 rounded-md shadow-md transition-all duration-300 text-2xl font-semibold hover:scale-105 transform mt-4 text-blue-900"
+            disabled={loading}
+            className="bg-blue-100 hover:bg-blue-200 border border-blue-200 flex items-center gap-2 px-8 py-4 rounded-md shadow-md transition-all duration-300 text-2xl font-semibold hover:scale-105 transform mt-4 text-blue-900 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {googleIcon}
-            <span>Login with Google</span>
+            {loading ? (
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-blue-900"></div>
+            ) : (
+              googleIcon
+            )}
+            <span>{loading ? 'Logging in...' : 'Login with Google'}</span>
           </button>
         )}
       </div>
