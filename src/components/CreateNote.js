@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { supabase } from "../utils/supabaseClient";
+import NoteVerifier from './NoteVerifier';
 
 async function sha256(message) {
   const msgBuffer = new TextEncoder().encode(message);
@@ -9,78 +10,115 @@ async function sha256(message) {
 }
 
 const CreateNote = ({ user, onBack }) => {
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [success, setSuccess] = useState("");
-  const [error, setError] = useState("");
+  const [note, setNote] = useState({ title: '', content: '' });
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [verificationData, setVerificationData] = useState(null);
 
-  const handleSave = async () => {
-    setLoading(true);
-    setError("");
-    setSuccess("");
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setIsVerifying(true);
+  };
+
+  const handleVerificationComplete = async (data) => {
+    setVerificationData(data);
+    setIsVerifying(false);
+    
+    // Here you would typically save the note and verification data to your database
+    // For example, using Supabase:
+    /*
     try {
-      // 1. Store note in Supabase
-      const { error: supabaseError } = await supabase
-        .from("notes")
-        .insert([{ title, content, user_id: user?.id }]);
-      if (supabaseError) throw supabaseError;
+      const { data, error } = await supabase
+        .from('notes')
+        .insert([{
+          title: note.title,
+          content: note.content,
+          user_id: user.id,
+          hash: data.hash,
+          transaction_hash: data.transactionHash,
+          verified_at: new Date().toISOString()
+        }]);
 
-      // 2. Compute SHA-256 hash
-      const hash = await sha256(content);
-      const timestamp = new Date().toISOString();
-
-      // 3. MOCK: Simulate sending to TorusChain
-      await new Promise(res => setTimeout(res, 1000));
-      // Optionally, you could set a fake tx_id in Supabase here
-
-      setSuccess("Note saved and proof submitted successfully!");
-      setTitle("");
-      setContent("");
+      if (error) throw error;
+      onBack(); // Return to notes list
     } catch (err) {
-      setError(err.message || "An error occurred");
-    } finally {
-      setLoading(false);
+      console.error('Failed to save note:', err);
     }
+    */
   };
 
   return (
-    <div className="relative w-full max-w-7xl min-h-[75vh] h-full mx-auto mt-8 p-10 bg-white rounded-3xl shadow-2xl flex flex-col justify-between">
-      <h2 className="text-2xl font-bold mb-6">Create a Note</h2>
-      {error && <div className="mb-4 text-red-600">{error}</div>}
-      {success && <div className="mb-4 text-green-600">{success}</div>}
-      <input
-        className="w-full border border-gray-800 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
-        type="text"
-        placeholder="Title"
-        value={title}
-        onChange={e => setTitle(e.target.value)}
-        disabled={loading}
-      />
-      <textarea
-        className="w-full border border-gray-800 rounded px-4 py-3 mb-6 focus:outline-none focus:ring-2 focus:ring-indigo-400 text-lg"
-        placeholder="Content"
-        value={content}
-        onChange={e => setContent(e.target.value)}
-        rows={8}
-        style={{ minHeight: '120px', maxHeight: '180px', overflowY: 'auto' }}
-        disabled={loading}
-      />
-      <button
-        className="w-full bg-indigo-600 text-white font-semibold py-3 px-4 rounded hover:bg-indigo-700 transition disabled:opacity-50 text-lg"
-        onClick={handleSave}
-        disabled={loading || !title || !content}
-      >
-        {loading ? "Saving..." : "Save Note"}
-      </button>
-      {onBack && (
+    <div className="w-full max-w-2xl mx-auto p-6">
+      <div className="flex items-center mb-6">
         <button
-          className="w-full mt-4 bg-gray-200 text-gray-700 font-semibold py-2 px-4 rounded hover:bg-gray-300 transition"
           onClick={onBack}
-          disabled={loading}
+          className="text-indigo-600 hover:text-indigo-800 flex items-center"
         >
-          Back
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 19l-7-7 7-7" />
+          </svg>
+          Back to Notes
         </button>
+      </div>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div>
+          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            Title
+          </label>
+          <input
+            type="text"
+            id="title"
+            value={note.title}
+            onChange={(e) => setNote({ ...note, title: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            required
+          />
+        </div>
+
+        <div>
+          <label htmlFor="content" className="block text-sm font-medium text-gray-700">
+            Content
+          </label>
+          <textarea
+            id="content"
+            rows={8}
+            value={note.content}
+            onChange={(e) => setNote({ ...note, content: e.target.value })}
+            className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+            required
+          />
+        </div>
+
+        <button
+          type="submit"
+          disabled={isVerifying}
+          className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+            isVerifying
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500'
+          }`}
+        >
+          {isVerifying ? 'Creating Note...' : 'Create Note'}
+        </button>
+      </form>
+
+      {isVerifying && (
+        <div className="mt-6">
+          <NoteVerifier
+            note={note}
+            onVerificationComplete={handleVerificationComplete}
+          />
+        </div>
+      )}
+
+      {verificationData && (
+        <div className="mt-6 p-4 bg-green-50 rounded-md">
+          <h3 className="text-lg font-medium text-green-800">Note Verified Successfully!</h3>
+          <div className="mt-2 text-sm text-green-700">
+            <p>Transaction Hash: {verificationData.transactionHash}</p>
+            <p>Note Hash: {verificationData.hash}</p>
+          </div>
+        </div>
       )}
     </div>
   );
